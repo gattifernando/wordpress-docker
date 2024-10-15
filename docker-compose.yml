@@ -1,0 +1,49 @@
+services:
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress_site
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db:3306  # Serviço de banco de dados deve ser 'db'
+      WORDPRESS_DB_USER: admin
+      WORDPRESS_DB_PASSWORD: senha
+      WORDPRESS_DB_NAME: site_padrao
+    ports:
+      - "8000:80"  # Porta local 8000 mapeada para a porta 80 do container
+    volumes:
+      - ./wp-content:/var/www/html/wp-content  # Mapeia apenas a pasta wp-content
+    networks:
+      - wp-network
+
+  db:
+    image: mariadb:latest
+    container_name: mariadb_site
+    restart: always
+    environment:
+      MYSQL_DATABASE: site_padrao
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: senha
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - wp-network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin_site
+    restart: always
+    environment:
+      PMA_HOST: db  # Host do banco de dados é 'db'
+      MYSQL_ROOT_PASSWORD: root  # Senha do root do banco de dados
+    ports:
+      - "8080:80"  # Porta local 8080 mapeada para a porta 80 do phpMyAdmin
+    networks:
+      - wp-network
+
+networks:
+  wp-network:
+    driver: bridge
+
+volumes:
+  db_data:
